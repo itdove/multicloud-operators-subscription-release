@@ -19,12 +19,11 @@ package helmreleasemgr
 import (
 	"testing"
 
+	appv1alpha1 "github.com/IBM/multicloud-operators-subscription-release/pkg/apis/app/v1alpha1"
 	"github.com/onsi/gomega"
 	"github.com/stretchr/testify/assert"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
-
-	appv1alpha1 "github.com/IBM/multicloud-operators-subscription-release/pkg/apis/app/v1alpha1"
 )
 
 var (
@@ -59,6 +58,41 @@ func TestNewManager(t *testing.T) {
 				},
 			},
 			ReleaseName: "subscription-release-test-1",
+			ChartName:   "subscription-release-test-1",
+		},
+	}
+
+	_, err = NewManager(mgr.GetConfig(), nil, nil, instance)
+	assert.NoError(t, err)
+}
+
+func TestNewManagerShortReleaseName(t *testing.T) {
+	g := gomega.NewGomegaWithT(t)
+
+	mgr, err := manager.New(cfg, manager.Options{})
+	assert.NoError(t, err)
+
+	stopMgr, mgrStopped := StartTestManager(mgr, g)
+
+	defer func() {
+		close(stopMgr)
+		mgrStopped.Wait()
+	}()
+
+	instance := &appv1alpha1.HelmRelease{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      helmReleaseName,
+			Namespace: helmReleaseNS,
+		},
+		Spec: appv1alpha1.HelmReleaseSpec{
+			Source: &appv1alpha1.Source{
+				SourceType: appv1alpha1.GitHubSourceType,
+				GitHub: &appv1alpha1.GitHub{
+					Urls:      []string{"https://github.com/IBM/multicloud-operators-subscription-release.git"},
+					ChartPath: "test/github/subscription-release-test-1",
+				},
+			},
+			ReleaseName: "sub",
 			ChartName:   "subscription-release-test-1",
 		},
 	}
