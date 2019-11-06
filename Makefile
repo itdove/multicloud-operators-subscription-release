@@ -64,6 +64,10 @@ MARKDOWN_LINT_WHITELIST := mycluster.icp
 include common/Makefile.common.mk
 # include Makefile.local
 
+init:
+	@find .git/hooks -type l -exec rm {} \;
+	@find .githooks -type f -exec ln -sf ../../{} .git/hooks/ \;
+
 ############################################################
 # work section
 ############################################################
@@ -162,3 +166,4 @@ endif
 ############################################################
 clean:
 	rm -f go-repo-template
+	
